@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Scenarios · anchor-popover</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../src/anchor-popover.css" />
+    <link rel="stylesheet" href="./shell.css" />
+    <link rel="stylesheet" href="./scenarios.css" />
+    <script type="module" src="./scenarios.js"></script>
+  </head>
+  <body>
+    <div class="page">
+      <header class="mast">
+        <a class="brand" href="./">anchor-popover</a>
+        <nav>
+          <a href="./">Playground</a>
+          <a href="./scenarios.html" aria-current="page">Scenarios</a>
+        </nav>
+      </header>
+
+      <p class="lead">
+        Each square scrolls. The button starts 4px inset from a pinned corner. When
+        <code>boundary</code> is set, the menu stays inside the visible square and flips as you go.
+      </p>
+
+      <nav class="toc" aria-label="Scenarios">
+        <div>
+          <p>Basics</p>
+          <a href="#viewport">1 Viewport</a>
+          <a href="#light">2 Light DOM</a>
+          <a href="#shadow-in">3 Shadow selector</a>
+          <a href="#shadow-tree">4 Inside shadow</a>
+          <a href="#shadow-out">5 Shadow → light</a>
+          <a href="#scroll">6 Center start</a>
+          <a href="#offset">7 Offset</a>
+          <a href="#duration">8 Duration</a>
+          <a href="#width">9 Max width</a>
+          <a href="#dismiss">10 Dismiss</a>
+        </div>
+        <div>
+          <p>Advanced</p>
+          <a href="#nested-shadow">11 Nested shadows</a>
+          <a href="#rtl">12 RTL</a>
+          <a href="#pair">13 Two menus</a>
+          <a href="#nested-menu">14 Nested menu</a>
+          <a href="#live">15 Live attrs</a>
+          <a href="#resize">16 Resize</a>
+          <a href="#hysteresis">17 Hysteresis</a>
+          <a href="#rapid">18 Rapid toggle</a>
+          <a href="#late">19 Late upgrade</a>
+          <a href="#scale">20 Scaled</a>
+          <a href="#sizes">21 Trigger size</a>
+          <a href="#aria">22 ARIA</a>
+        </div>
+        <div>
+          <p>Stress</p>
+          <a href="#matrix">23 All placements</a>
+          <a href="#vertical">24 Vertical</a>
+          <a href="#bad-bound">25 Bad boundary</a>
+          <a href="#implicit">26 Implicit slots</a>
+          <a href="#api">27 API</a>
+          <a href="#remount">28 Remount</a>
+          <a href="#reparent">29 Reparent</a>
+          <a href="#clip">30 Overflow hidden</a>
+          <a href="#closed">31 Closed shadow</a>
+          <a href="#units">32 CSS units</a>
+          <a href="#defaults">33 Defaults</a>
+          <a href="#tall">34 Tall content</a>
+          <a href="#nudge">35 Move trigger</a>
+          <a href="#stable-id">36 Stable id</a>
+        </div>
+      </nav>
+
+      <main class="cases">
+
+      <article id="viewport" class="case">
+        <header>
+          <h2>1. Viewport</h2>
+          <p class="lede">No <code>boundary</code>. CSS <code>position-try</code> flips against the window.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Click Open. The button starts at the NE corner of this square.</span></li>
+          <li><span>2</span><span>Scroll this square so the button sits against the <b>top</b> of the <b>window</b>.</span></li>
+        </ol>
+        <p class="expect">Expect: the menu may leave this square — the window is the boundary. Near the top of the page it should appear below the button.</p>
+        <div class="stage pin-ne">
+          <div class="canvas">
+            <anchor-popover placement="block-start">
+              <button data-trigger type="button">Open</button>
+              <div data-content>Flips against the document viewport, not this square.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="light" class="case">
+        <header>
+          <h2>2. Light DOM boundary</h2>
+          <p class="lede"><code>boundary=".wrap"</code> on an ancestor in the same tree. Menu must stay inside the dotted square.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open each. The button starts in that square’s named corner.</span></li>
+          <li><span>2</span><span>Keep the menu open and scroll the square toward the opposite edges.</span></li>
+        </ol>
+        <p class="expect">Expect: NE / NW start above and flip below. SE starts below and flips above. West starts inline-start and flips toward the center. The menu never leaves its square.</p>
+        <div class="grid two">
+          <div>
+            <div class="stage wrap pin-ne">
+              <div class="canvas">
+                <anchor-popover placement="block-start" boundary=".wrap">
+                  <button data-trigger type="button">Open</button>
+                  <div data-content>NE · block-start → should flip below.</div>
+                </anchor-popover>
+              </div>
+            </div>
+            <p class="caption">NE · <code>block-start</code></p>
+          </div>
+          <div>
+            <div class="stage wrap pin-nw">
+              <div class="canvas">
+                <anchor-popover placement="block-start-start" boundary=".wrap">
+                  <button data-trigger type="button">Open</button>
+                  <div data-content>NW · block-start-start → below, start-aligned.</div>
+                </anchor-popover>
+              </div>
+            </div>
+            <p class="caption">NW · <code>block-start-start</code></p>
+          </div>
+          <div>
+            <div class="stage wrap pin-se">
+              <div class="canvas">
+                <anchor-popover placement="block-end" boundary=".wrap">
+                  <button data-trigger type="button">Open</button>
+                  <div data-content>SE · block-end → should flip above.</div>
+                </anchor-popover>
+              </div>
+            </div>
+            <p class="caption">SE · <code>block-end</code></p>
+          </div>
+          <div>
+            <div class="stage wrap pin-w">
+              <div class="canvas">
+                <anchor-popover placement="inline-start" boundary=".wrap">
+                  <button data-trigger type="button">Open</button>
+                  <div data-content>West · inline-start → should flip toward the center.</div>
+                </anchor-popover>
+              </div>
+            </div>
+            <p class="caption">West · <code>inline-start</code></p>
+          </div>
+        </div>
+      </article>
+
+      <article id="shadow-in" class="case">
+        <header>
+          <h2>3. Selector inside a shadow root</h2>
+          <p class="lede">The popover is in light DOM. <code>.wrap</code> exists only inside the parent’s shadow (around a slot).</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Confirm this host has an open shadow and an inner <code>.wrap</code> (DevTools).</span></li>
+          <li><span>2</span><span>Click Open, then scroll the square with the menu open.</span></li>
+        </ol>
+        <p class="expect">Expect: same as NE light-DOM — flips below, stays in the square while you scroll.</p>
+        <shadow-wrap class="pin-ne">
+          <anchor-popover placement="block-start" boundary=".wrap">
+            <button data-trigger type="button">Open</button>
+            <div data-content><code>.wrap</code> lives in the parent shadow, around the slot.</div>
+          </anchor-popover>
+        </shadow-wrap>
+      </article>
+
+      <article id="shadow-tree" class="case">
+        <header>
+          <h2>4. Popover inside a shadow root</h2>
+          <p class="lede">Host, wrap, trigger, and content are all in one shadow tree.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>In DevTools, expand this element’s shadow root. The <code>anchor-popover</code> should be inside it.</span></li>
+          <li><span>2</span><span>Click Open, then scroll the square.</span></li>
+        </ol>
+        <p class="expect">Expect: menu flips below, stays in the square, and refits as you scroll.</p>
+        <shadow-inner></shadow-inner>
+      </article>
+
+      <article id="shadow-out" class="case">
+        <header>
+          <h2>5. Popover in shadow, wrap in light DOM</h2>
+          <p class="lede">Boundary walks <em>out</em> of the shadow to a light-DOM ancestor <code>.wrap</code>.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Confirm the dotted square is a light-DOM <code>div.wrap</code> wrapping a custom element.</span></li>
+          <li><span>2</span><span>Click Open, then scroll the square. The button lives in the inner shadow.</span></li>
+        </ol>
+        <p class="expect">Expect: menu still constrains to this square while you scroll, not the window.</p>
+        <div class="stage wrap pin-ne">
+          <div class="canvas">
+            <shadow-host></shadow-host>
+          </div>
+        </div>
+      </article>
+
+      <article id="scroll" class="case">
+        <header>
+          <h2>6. Center start</h2>
+          <p class="lede">Same scrollable square, button starts in the middle. Hard stops keep it 4px inside.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Click Open. The button starts centered.</span></li>
+          <li><span>2</span><span>Scroll to each corner without closing.</span></li>
+          <li><span>3</span><span>At a hard stop the button must not clip; keep ~4px inset.</span></li>
+        </ol>
+        <p class="expect">Expect: the menu stays inside the visible square and flips as the button nears an edge.</p>
+        <div class="stage wrap pin-center">
+          <div class="canvas">
+            <anchor-popover placement="block-end" boundary=".wrap">
+              <button data-trigger type="button">Open</button>
+              <div data-content>Scroll to every corner. I should follow and flip, never leave this box.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="offset" class="case">
+        <header>
+          <h2>7. Offset</h2>
+          <p class="lede">Gap only on the attached axis. Alignment edge stays flush.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open both. Compare the gap between button and menu.</span></li>
+          <li><span>2</span><span>Scroll each square. The gap must stay on the attached axis only.</span></li>
+        </ol>
+        <p class="expect">Expect: left is flush (<code>offset="0"</code>). Right is a 16px gap, still start-aligned.</p>
+        <div class="grid two">
+          <div>
+            <div class="stage wrap pin-nw">
+              <div class="canvas">
+                <anchor-popover placement="block-end-start" offset="0" boundary=".wrap">
+                  <button data-trigger type="button">Open</button>
+                  <div data-content>offset 0 · flush to the button.</div>
+                </anchor-popover>
+              </div>
+            </div>
+            <p class="caption"><code>offset="0"</code></p>
+          </div>
+          <div>
+            <div class="stage wrap pin-nw">
+              <div class="canvas">
+                <anchor-popover placement="block-end-start" offset="16" boundary=".wrap">
+                  <button data-trigger type="button">Open</button>
+                  <div data-content>offset 16 · gap on the block axis only.</div>
+                </anchor-popover>
+              </div>
+            </div>
+            <p class="caption"><code>offset="16"</code></p>
+          </div>
+        </div>
+      </article>
+
+      <article id="duration" class="case">
+        <header>
+          <h2>8. Duration</h2>
+          <p class="lede">Non-zero duration fades open/close and interpolates JS flips inside a boundary.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open the left (0ms), then the right (400ms). Compare the fade.</span></li>
+          <li><span>2</span><span>On the right, keep it open and scroll so it must flip. Watch the move.</span></li>
+        </ol>
+        <p class="expect">Expect: left is instant. Right fades ~400ms and eases when it flips. Reduced-motion should kill both.</p>
+        <div class="grid two">
+          <div>
+            <div class="stage wrap pin-ne">
+              <div class="canvas">
+                <anchor-popover placement="block-start" duration="0" boundary=".wrap">
+                  <button data-trigger type="button">Open</button>
+                  <div data-content>duration 0 · instant.</div>
+                </anchor-popover>
+              </div>
+            </div>
+            <p class="caption"><code>duration="0"</code></p>
+          </div>
+          <div>
+            <div class="stage wrap pin-ne">
+              <div class="canvas">
+                <anchor-popover placement="block-start" duration="400" boundary=".wrap">
+                  <button data-trigger type="button">Open</button>
+                  <div data-content>duration 400 · fade, then a JS flip if you scroll.</div>
+                </anchor-popover>
+              </div>
+            </div>
+            <p class="caption"><code>duration="400"</code></p>
+          </div>
+        </div>
+      </article>
+
+      <article id="width" class="case">
+        <header>
+          <h2>9. Max width</h2>
+          <p class="lede">Default cap is <code>16rem</code>. This fixture overrides <code>--anchor-max-width</code> to <code>8rem</code>.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open. The copy is long on purpose.</span></li>
+          <li><span>2</span><span>Scroll the square. The 8rem cap must hold in every corner.</span></li>
+        </ol>
+        <p class="expect">Expect: this panel wraps at <b>8rem</b>, not 16rem, and stays inside the square.</p>
+        <div class="stage wrap pin-ne">
+          <div class="canvas">
+            <anchor-popover placement="block-start" boundary=".wrap">
+              <button data-trigger type="button">Open</button>
+              <div data-content style="--anchor-max-width: 8rem">
+                Long copy to show an override of the max-width custom property. This panel should be
+                clearly narrower than the default 16rem used everywhere else.
+              </div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="dismiss" class="case">
+        <header>
+          <h2>10. Dismiss</h2>
+          <p class="lede">Boundary mode leaves the top layer, so light-dismiss is ours: outside click and Escape.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open. Click the square background (not the menu).</span></li>
+          <li><span>2</span><span>Open again. Press Escape.</span></li>
+          <li><span>3</span><span>Open again. Click the menu copy — it must stay open. Scroll does not dismiss.</span></li>
+        </ol>
+        <p class="expect">Expect: outside click and Escape close. Clicks on the menu and scrolling the square do not.</p>
+        <div class="stage wrap pin-ne">
+          <div class="canvas">
+            <anchor-popover placement="block-start" boundary=".wrap" aria-haspopup="menu">
+              <button data-trigger type="button">Open</button>
+              <div data-content>Click me — I should stay open. Click the dark square or press Escape to close.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <p class="chapter">Advanced</p>
+
+      <article id="nested-shadow" class="case">
+        <header>
+          <h2>11. Nested shadows</h2>
+          <p class="lede">Outer shadow owns <code>.wrap</code>. Inner shadow owns the popover. Boundary must pierce both.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>In DevTools: <code>shadow-wrap</code> → shadow → <code>.wrap</code>, and a nested <code>shadow-host</code> with its own shadow.</span></li>
+          <li><span>2</span><span>Open, then scroll. The button is two shadows deep.</span></li>
+        </ol>
+        <p class="expect">Expect: menu constrains to the outer dotted square, not the window.</p>
+        <shadow-wrap class="pin-ne">
+          <shadow-host></shadow-host>
+        </shadow-wrap>
+      </article>
+
+      <article id="rtl" class="case">
+        <header>
+          <h2>12. RTL</h2>
+          <p class="lede"><code>dir="rtl"</code> on the wrap. <code>inline-start</code> is the physical right in LTR terms.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Button starts on the inline-start edge (right side in RTL).</span></li>
+          <li><span>2</span><span>Open. Placement is <code>inline-start</code> (toward start, off the box).</span></li>
+          <li><span>3</span><span>Scroll toward the opposite edge with it open.</span></li>
+        </ol>
+        <p class="expect">Expect: menu flips toward the center of the square (physical left). Logical start/end follow RTL, not a hardcoded left.</p>
+        <div class="stage wrap pin-e rtl">
+          <div class="canvas" dir="rtl">
+            <anchor-popover placement="inline-start" boundary=".wrap">
+              <button data-trigger type="button">فتح</button>
+              <div data-content>RTL · inline-start should leave the start edge and flip inward.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="pair" class="case">
+        <header>
+          <h2>13. Two popovers, one boundary</h2>
+          <p class="lede">Two hosts, one <code>.wrap</code>. Unique anchors. Light-dismiss should close only the one you clicked outside of — actually both listen on document, so an outside click closes both if both are open. Open one at a time first, then both.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open A. It must attach to A, not B.</span></li>
+          <li><span>2</span><span>Close A. Open B. Same check.</span></li>
+          <li><span>3</span><span>Open A, then B (two open). Click the dark square.</span></li>
+        </ol>
+        <p class="expect">Expect: each menu follows its own button. Outside click closes open menus. They must not share an <code>anchor-name</code>.</p>
+        <div class="stage wrap pin-center pair-stage">
+          <div class="canvas">
+            <anchor-popover placement="block-end" boundary=".wrap">
+              <button data-trigger type="button">A</button>
+              <div data-content>Menu A</div>
+            </anchor-popover>
+            <anchor-popover placement="block-start" boundary=".wrap">
+              <button data-trigger type="button">B</button>
+              <div data-content>Menu B</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="nested-menu" class="case">
+        <header>
+          <h2>14. Nested menu</h2>
+          <p class="lede">A popover that contains another <code>anchor-popover</code>. Inner boundary is still the square.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open the outer menu.</span></li>
+          <li><span>2</span><span>Click More inside it. The inner menu must open, anchored to More.</span></li>
+          <li><span>3</span><span>Click More again or Escape. Inner should close before the outer if both handle Escape — note what actually happens.</span></li>
+        </ol>
+        <p class="expect">Expect: inner menu positions against More and stays in the square. Clicking More does not close the outer via light-dismiss (click is inside outer content).</p>
+        <div class="stage wrap pin-ne">
+          <div class="canvas">
+            <anchor-popover placement="block-start" boundary=".wrap">
+              <button data-trigger type="button">Open</button>
+              <div data-content>
+                Outer menu
+                <anchor-popover placement="inline-end" boundary=".wrap">
+                  <button data-trigger type="button">More</button>
+                  <div data-content>Inner menu · nested host</div>
+                </anchor-popover>
+              </div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="live" class="case">
+        <header>
+          <h2>15. Live attributes</h2>
+          <p class="lede">Change <code>placement</code> and <code>boundary</code> while connected. The controller must <code>update()</code> without remounting.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open. Cycle placement through every token with the menu open.</span></li>
+          <li><span>2</span><span>Turn boundary off. The menu may leave the square (viewport).</span></li>
+          <li><span>3</span><span>Turn boundary back on. It must constrain again.</span></li>
+        </ol>
+        <p class="expect">Expect: placement updates immediately. Toggling boundary switches top-layer vs local without a reload. Readout below the square tracks the attrs.</p>
+        <div class="tools">
+          <button type="button" id="cycle-place">Cycle placement</button>
+          <button type="button" id="toggle-bound">Toggle boundary</button>
+          <button type="button" id="cycle-offset">Cycle offset</button>
+          <button type="button" id="cycle-duration">Cycle duration</button>
+        </div>
+        <p class="readout" id="live-readout"></p>
+        <div class="stage wrap pin-center">
+          <div class="canvas">
+            <anchor-popover id="live-pop" placement="block-end" boundary=".wrap">
+              <button data-trigger type="button">Open</button>
+              <div data-content>Live host · watch placement and boundary change under me.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="resize" class="case">
+        <header>
+          <h2>16. Resize the boundary</h2>
+          <p class="lede">The square is <code>resize: both</code>. ResizeObserver on the wrap must refit.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open. Drag the corner handle and shrink the square until the menu no longer fits below.</span></li>
+          <li><span>2</span><span>Grow it again.</span></li>
+        </ol>
+        <p class="expect">Expect: the menu flips as the box shrinks and returns as it grows. No reload.</p>
+        <div class="stage wrap pin-center resizer">
+          <div class="canvas">
+            <anchor-popover placement="block-end" boundary=".wrap">
+              <button data-trigger type="button">Open</button>
+              <div data-content>Resize this square from the corner.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="hysteresis" class="case">
+        <header>
+          <h2>17. Flip hysteresis</h2>
+          <p class="lede">JS fit uses an 8px sticky threshold so the menu does not flicker on the boundary.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open. Scroll slowly until it flips.</span></li>
+          <li><span>2</span><span>Scroll back a few pixels — not a full jump.</span></li>
+        </ol>
+        <p class="expect">Expect: it does not flip back immediately. You need a clearer reverse overflow (~8px) before it returns.</p>
+        <div class="stage wrap pin-ne">
+          <div class="canvas">
+            <anchor-popover placement="block-start" duration="0" boundary=".wrap">
+              <button data-trigger type="button">Open</button>
+              <div data-content>Nudge the scroll around the flip point. I should stick, not chatter.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="rapid" class="case">
+        <header>
+          <h2>18. Rapid toggle</h2>
+          <p class="lede">Spam <code>toggle()</code>. Open state, ARIA, and local vs top-layer must not desync.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Click Burst. It toggles 24 times at 40ms.</span></li>
+          <li><span>2</span><span>When it stops, click Open once by hand.</span></li>
+        </ol>
+        <p class="expect">Expect: no stuck visible menu, no missing click. Final <code>aria-expanded</code> matches what you see.</p>
+        <div class="tools">
+          <button type="button" id="burst">Burst</button>
+        </div>
+        <div class="stage wrap pin-ne">
+          <div class="canvas">
+            <anchor-popover id="burst-pop" placement="block-start" boundary=".wrap">
+              <button data-trigger type="button">Open</button>
+              <div data-content>I get toggled rapidly.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="late" class="case">
+        <header>
+          <h2>19. Late parent upgrade</h2>
+          <p class="lede">The wrapping custom element is defined 1.5s after parse. Boundary <code>.wrap</code> is inside its shadow.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Wait until the dotted square appears (parent upgrades).</span></li>
+          <li><span>2</span><span>Open immediately, then scroll.</span></li>
+        </ol>
+        <p class="expect">Expect: first open after upgrade still finds <code>.wrap</code> (we re-resolve on show). Menu stays in the square.</p>
+        <late-wrap class="pin-ne">
+          <anchor-popover placement="block-start" boundary=".wrap">
+            <button data-trigger type="button">Open</button>
+            <div data-content>Parent custom element upgraded late.</div>
+          </anchor-popover>
+        </late-wrap>
+      </article>
+
+      <article id="scale" class="case">
+        <header>
+          <h2>20. Scaled ancestor</h2>
+          <p class="lede">The square sits in a <code>transform: scale(0.85)</code> wrapper. Anchor math must still hit the visual box.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open. The whole fixture is visually smaller.</span></li>
+          <li><span>2</span><span>Scroll to corners.</span></li>
+        </ol>
+        <p class="expect">Expect: menu still hugs the button and stays in the scaled square — no gap that grows with the scale.</p>
+        <div class="scale-outer">
+          <div class="scale-frame">
+            <div class="stage wrap pin-ne">
+              <div class="canvas">
+                <anchor-popover placement="block-start" boundary=".wrap">
+                  <button data-trigger type="button">Open</button>
+                  <div data-content>Ancestor is scaled to 0.85.</div>
+                </anchor-popover>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article id="sizes" class="case">
+        <header>
+          <h2>21. Trigger size</h2>
+          <p class="lede">A large trigger and a tiny one. Offset and flip estimates use the real box.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open both. Note alignment against the fat vs tiny button.</span></li>
+          <li><span>2</span><span>Scroll each to an edge so they must flip.</span></li>
+        </ol>
+        <p class="expect">Expect: gap is 4px from that trigger’s box, not a hardcoded 40px control. Tiny button still 4px inset at scroll stops.</p>
+        <div class="grid two">
+          <div>
+            <div class="stage wrap pin-ne">
+              <div class="canvas">
+                <anchor-popover placement="block-start" boundary=".wrap">
+                  <button data-trigger type="button" class="fat">Open</button>
+                  <div data-content>Fat trigger.</div>
+                </anchor-popover>
+              </div>
+            </div>
+            <p class="caption">Large padding</p>
+          </div>
+          <div>
+            <div class="stage wrap pin-ne">
+              <div class="canvas">
+                <anchor-popover placement="block-start" boundary=".wrap">
+                  <button data-trigger type="button" class="tiny">Go</button>
+                  <div data-content>Tiny trigger.</div>
+                </anchor-popover>
+              </div>
+            </div>
+            <p class="caption">Compact</p>
+          </div>
+        </div>
+      </article>
+
+      <article id="aria" class="case">
+        <header>
+          <h2>22. ARIA</h2>
+          <p class="lede"><code>aria-haspopup="listbox"</code> is copied onto the trigger. <code>aria-expanded</code> tracks open.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Inspect the button before opening. It should already have <code>aria-haspopup="listbox"</code>.</span></li>
+          <li><span>2</span><span>Open and close. Watch the readout.</span></li>
+        </ol>
+        <p class="expect">Expect: expanded is <code>true</code> only while open. haspopup stays <code>listbox</code>.</p>
+        <p class="readout" id="aria-readout"></p>
+        <div class="stage wrap pin-ne">
+          <div class="canvas">
+            <anchor-popover id="aria-pop" placement="block-start" boundary=".wrap" aria-haspopup="listbox">
+              <button data-trigger type="button">Open</button>
+              <div data-content>Check aria-expanded on the trigger.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <p class="chapter">Stress</p>
+
+      <article id="matrix" class="case">
+        <header>
+          <h2>23. All twelve placements</h2>
+          <p class="lede">Every logical token, same square, same boundary. Buttons start centered.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open each. The first paint should match the token (block vs inline, start vs end align).</span></li>
+          <li><span>2</span><span>Scroll that square toward the attached edge until it must flip.</span></li>
+        </ol>
+        <p class="expect">Expect: no token shares an <code>anchor-name</code>. Flip stays inside the square. Aligned tokens stay flush on the alignment edge.</p>
+        <div class="grid matrix" id="place-matrix"></div>
+      </article>
+
+      <article id="vertical" class="case">
+        <header>
+          <h2>24. Vertical writing mode</h2>
+          <p class="lede"><code>writing-mode: vertical-rl</code> on the wrap. Logical <code>block-end</code> is physical left. JS fit still assumes horizontal-tb + LTR.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open. Note which physical side the menu uses.</span></li>
+          <li><span>2</span><span>Scroll toward that edge.</span></li>
+        </ol>
+        <p class="expect">Expect: CSS <code>position-area</code> follows vertical-rl. If JS flip looks wrong near an edge, that is the known estimator limitation — record it, don’t paper over it.</p>
+        <div class="stage wrap pin-center">
+          <div class="canvas">
+            <div class="vertical-host">
+              <anchor-popover placement="block-end" boundary=".wrap">
+                <button data-trigger type="button">Open</button>
+                <div data-content>vertical-rl · block-end is toward block-end, not “below”.</div>
+              </anchor-popover>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article id="bad-bound" class="case">
+        <header>
+          <h2>25. Bad boundary / bad placement</h2>
+          <p class="lede">Selector that matches nothing. Unknown placement token. Both must fail closed, not throw.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Left: <code>boundary="#no-box"</code>. Open and scroll toward the top of the window.</span></li>
+          <li><span>2</span><span>Right: <code>placement="top"</code>. Open. It should behave as default <code>block-end</code>.</span></li>
+        </ol>
+        <p class="expect">Expect: left may leave the square (viewport / top layer). Right sits below the button, no console throw.</p>
+        <div class="grid two">
+          <div>
+            <div class="stage wrap pin-ne">
+              <div class="canvas">
+                <anchor-popover id="missing-bound-pop" placement="block-start" boundary="#no-box">
+                  <button data-trigger type="button">Open</button>
+                  <div data-content>Missing boundary · viewport flip.</div>
+                </anchor-popover>
+              </div>
+            </div>
+            <p class="caption"><code>boundary="#no-box"</code></p>
+          </div>
+          <div>
+            <div class="stage wrap pin-center">
+              <div class="canvas">
+                <anchor-popover id="bad-place-pop" placement="top" boundary=".wrap">
+                  <button data-trigger type="button">Open</button>
+                  <div data-content>Unknown placement · should fall back to block-end.</div>
+                </anchor-popover>
+              </div>
+            </div>
+            <p class="caption"><code>placement="top"</code></p>
+          </div>
+        </div>
+      </article>
+
+      <article id="implicit" class="case">
+        <header>
+          <h2>26. Implicit trigger / content</h2>
+          <p class="lede">No <code>data-trigger</code> / <code>data-content</code>. Controller should take the first two element children (button + panel).</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Click the button. The panel must open.</span></li>
+          <li><span>2</span><span>Scroll with it open.</span></li>
+        </ol>
+        <p class="expect">Expect: same constrain/flip as a tagged pair. Button gets <code>data-anchor-role="trigger"</code>.</p>
+        <div class="stage wrap pin-ne">
+          <div class="canvas">
+            <anchor-popover placement="block-start" boundary=".wrap">
+              <button type="button" class="chip">Open</button>
+              <div class="chip">Implicit children — no data attributes.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="api" class="case">
+        <header>
+          <h2>27. Programmatic API</h2>
+          <p class="lede"><code>show()</code>, <code>hide()</code>, <code>toggle()</code> on the host, without clicking the trigger.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Click Show. The menu must open and fit.</span></li>
+          <li><span>2</span><span>Click Hide. It must close. ARIA expanded false.</span></li>
+          <li><span>3</span><span>Click Toggle twice. Ends closed.</span></li>
+        </ol>
+        <p class="expect">Expect: host <code>.open</code> matches visibility. Show on an already-open menu is a no-op, not a flicker.</p>
+        <div class="tools">
+          <button type="button" id="api-show">show()</button>
+          <button type="button" id="api-hide">hide()</button>
+          <button type="button" id="api-toggle">toggle()</button>
+        </div>
+        <p class="readout" id="api-readout"></p>
+        <div class="stage wrap pin-center">
+          <div class="canvas">
+            <anchor-popover id="api-pop" placement="block-end" boundary=".wrap">
+              <button data-trigger type="button">Open</button>
+              <div data-content>Opened from the host methods, not only the button.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="remount" class="case">
+        <header>
+          <h2>28. Remount trigger</h2>
+          <p class="lede">ChildList mutation replaces the button. The host must disconnect and connect a new controller.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open, then Replace trigger while open.</span></li>
+          <li><span>2</span><span>The old menu must go. Click the new button.</span></li>
+        </ol>
+        <p class="expect">Expect: new button is wired, unique anchor, still constrained to the square. No leftover top-layer panel.</p>
+        <div class="tools">
+          <button type="button" id="swap-trigger">Replace trigger</button>
+        </div>
+        <div class="stage wrap pin-ne">
+          <div class="canvas">
+            <anchor-popover id="swap-pop" placement="block-start" boundary=".wrap">
+              <button data-trigger type="button">Open</button>
+              <div data-content>Replace my trigger while I am connected.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="reparent" class="case">
+        <header>
+          <h2>29. Reparent the host</h2>
+          <p class="lede">Move one <code>anchor-popover</code> from dock A to dock B. <code>disconnectedCallback</code> then <code>connectedCallback</code>.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open in A. Confirm it constrains to A.</span></li>
+          <li><span>2</span><span>Move to B (closes on disconnect). Open in B.</span></li>
+        </ol>
+        <p class="expect">Expect: after the move, the menu constrains to B’s square, not A. No duplicate listeners on A.</p>
+        <div class="tools">
+          <button type="button" id="travel">Move to other dock</button>
+        </div>
+        <p class="readout" id="travel-readout">dock A</p>
+        <div class="grid two">
+          <div>
+            <div class="stage wrap pin-center" id="dock-a">
+              <div class="canvas">
+                <anchor-popover id="travel-pop" placement="block-end" boundary=".wrap">
+                  <button data-trigger type="button">Open</button>
+                  <div data-content>I travel between docks.</div>
+                </anchor-popover>
+              </div>
+            </div>
+            <p class="caption">Dock A</p>
+          </div>
+          <div>
+            <div class="stage wrap pin-center" id="dock-b">
+              <div class="canvas"></div>
+            </div>
+            <p class="caption">Dock B</p>
+          </div>
+        </div>
+      </article>
+
+      <article id="clip" class="case">
+        <header>
+          <h2>30. Overflow hidden</h2>
+          <p class="lede">Boundary is <code>overflow: hidden</code> — no scroll. Button is pinned NE so <code>block-start</code> cannot fit.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open. There is no way to scroll this square.</span></li>
+        </ol>
+        <p class="expect">Expect: menu flips below on first open and is clipped if it still overflows. It must not paint outside the square.</p>
+        <div class="stage wrap pin-ne clip">
+          <div class="canvas">
+            <anchor-popover placement="block-start" boundary=".wrap">
+              <button data-trigger type="button">Open</button>
+              <div data-content>Hidden overflow. I should flip below immediately.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="closed" class="case">
+        <header>
+          <h2>31. Closed shadow</h2>
+          <p class="lede"><code>.wrap</code> lives in a <b>closed</b> shadow. <code>element.shadowRoot</code> is null, so the selector cannot pierce.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Wait for the square (host defined). Open.</span></li>
+          <li><span>2</span><span>Scroll if possible, or drag the page so the button nears the window edge.</span></li>
+        </ol>
+        <p class="expect">Expect: boundary resolves to nothing. Menu uses the viewport / top layer and may leave this square. Closed trees are unreachable on purpose.</p>
+        <closed-wrap class="pin-ne">
+          <anchor-popover placement="block-start" boundary=".wrap">
+            <button data-trigger type="button">Open</button>
+            <div data-content>Closed shadow owns .wrap — selector should miss it.</div>
+          </anchor-popover>
+        </closed-wrap>
+      </article>
+
+      <article id="units" class="case">
+        <header>
+          <h2>32. CSS units</h2>
+          <p class="lede"><code>offset="1rem"</code> and <code>duration="0.4s"</code> — not unitless numbers.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open both. Left gap should be ~1rem, not 1px.</span></li>
+          <li><span>2</span><span>Right should fade ~400ms. Scroll it to force a JS flip.</span></li>
+        </ol>
+        <p class="expect">Expect: unit strings pass through. Duration <code>0.4s</code> animates the same as <code>400</code>.</p>
+        <div class="grid two">
+          <div>
+            <div class="stage wrap pin-nw">
+              <div class="canvas">
+                <anchor-popover placement="block-end-start" offset="1rem" boundary=".wrap">
+                  <button data-trigger type="button">Open</button>
+                  <div data-content>offset 1rem</div>
+                </anchor-popover>
+              </div>
+            </div>
+            <p class="caption"><code>offset="1rem"</code></p>
+          </div>
+          <div>
+            <div class="stage wrap pin-ne">
+              <div class="canvas">
+                <anchor-popover placement="block-start" duration="0.4s" boundary=".wrap">
+                  <button data-trigger type="button">Open</button>
+                  <div data-content>duration 0.4s · fade + flip</div>
+                </anchor-popover>
+              </div>
+            </div>
+            <p class="caption"><code>duration="0.4s"</code></p>
+          </div>
+        </div>
+      </article>
+
+      <article id="defaults" class="case">
+        <header>
+          <h2>33. Default attributes</h2>
+          <p class="lede">No <code>placement</code>, <code>offset</code>, <code>duration</code>, or <code>boundary</code>.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open. Should sit below with a 4px gap (viewport).</span></li>
+          <li><span>2</span><span>Scroll the page so the button hits the bottom of the window.</span></li>
+        </ol>
+        <p class="expect">Expect: <code>block-end</code>, 4px, instant, top-layer flip against the window — not this square.</p>
+        <div class="stage pin-center">
+          <div class="canvas">
+            <anchor-popover>
+              <button data-trigger type="button">Open</button>
+              <div data-content>All defaults. I flip against the document, not this box.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="tall" class="case">
+        <header>
+          <h2>34. Tall content</h2>
+          <p class="lede">Panel taller than the square. JS fit should try other sides, not clip forever below.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open. Then Grow so the panel gets taller while open.</span></li>
+          <li><span>2</span><span>Scroll toward the bottom.</span></li>
+        </ol>
+        <p class="expect">Expect: a side placement if block cannot fit. Growing copy retriggers ResizeObserver and refits.</p>
+        <div class="tools">
+          <button type="button" id="grow">Grow copy</button>
+        </div>
+        <div class="stage wrap pin-center">
+          <div class="canvas">
+            <anchor-popover id="grow-pop" placement="block-end" boundary=".wrap">
+              <button data-trigger type="button">Open</button>
+              <div data-content>
+                Line one of a tall panel.<br />
+                Line two of a tall panel.<br />
+                Line three of a tall panel.<br />
+                Line four of a tall panel.<br />
+                Line five of a tall panel.<br />
+                Line six of a tall panel.<br />
+                Line seven of a tall panel.<br />
+                Line eight of a tall panel.
+              </div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="nudge" class="case">
+        <header>
+          <h2>35. Move trigger while open</h2>
+          <p class="lede">Shift the button on the canvas. The menu must follow without a remount.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Open, then Nudge several times toward the end edge.</span></li>
+          <li><span>2</span><span>Keep going until it must flip.</span></li>
+        </ol>
+        <p class="expect">Expect: menu tracks the button. Near the edge it flips and stays in the square.</p>
+        <div class="tools">
+          <button type="button" id="nudge">Nudge</button>
+          <button type="button" id="nudge-reset">Reset</button>
+        </div>
+        <div class="stage wrap pin-center" id="nudge-stage">
+          <div class="canvas">
+            <anchor-popover id="nudge-pop" placement="block-end" boundary=".wrap">
+              <button data-trigger type="button">Open</button>
+              <div data-content>I follow the button when it moves.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+
+      <article id="stable-id" class="case">
+        <header>
+          <h2>36. Author id on content</h2>
+          <p class="lede">Content already has <code>id="kept-panel"</code>. Viewport mode so <code>popovertarget</code> is used.</p>
+        </header>
+        <ol class="steps">
+          <li><span>1</span><span>Inspect the panel id and the button’s <code>popovertarget</code>.</span></li>
+          <li><span>2</span><span>Open / close. Id must not be rewritten to <code>ap-…</code>.</span></li>
+        </ol>
+        <p class="expect">Expect: id stays <code>kept-panel</code>. <code>popovertarget="kept-panel"</code>. Readout below should agree.</p>
+        <p class="readout" id="id-readout"></p>
+        <div class="stage pin-ne">
+          <div class="canvas">
+            <anchor-popover id="id-pop" placement="block-start">
+              <button data-trigger type="button">Open</button>
+              <div data-content id="kept-panel">My id must stay kept-panel.</div>
+            </anchor-popover>
+          </div>
+        </div>
+      </article>
+      </main>
+    </div>
+  </body>
+</html>

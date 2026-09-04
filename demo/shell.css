@@ -1,0 +1,133 @@
+:root {
+  color-scheme: dark;
+  --bg: #0c0c0c;
+  --fg: #f3f3f1;
+  --muted: #8b8b87;
+  --line: #232323;
+  --elev: #141414;
+  --stage: #161616;
+  --panel: #ecece8;
+  --ink: #111;
+  --radius: 8px;
+  --font: ui-sans-serif, system-ui, "Helvetica Neue", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.45;
+  background: var(--bg);
+  color: var(--fg);
+  scroll-padding-top: 24px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+.page {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 960px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: 16px 16px 72px;
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+}
+
+@media (min-width: 840px) {
+  .page {
+    padding: 20px 20px 80px;
+  }
+}
+
+button,
+input,
+select,
+label,
+textarea,
+output {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 1px solid var(--panel);
+  outline-offset: 2px;
+}
+
+.mast {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding-bottom: 20px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  font-size: 14px;
+  font-weight: 560;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.mast nav {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+}
+
+.mast nav a {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 8px 2px;
+}
+
+.mast nav a:hover,
+.mast nav a[aria-current="page"] {
+  color: var(--fg);
+}
+
+.lead {
+  margin: 0 0 24px;
+  max-width: 40em;
+  color: var(--muted);
+}
+
+.lead code,
+.case code,
+.expect code,
+.lede code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+}
+
+.ghost {
+  font: inherit;
+  padding: 5px 9px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.ghost:hover {
+  filter: brightness(0.96);
+}

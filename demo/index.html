@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Playground · anchor-popover</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../src/anchor-popover.css" />
+    <link rel="stylesheet" href="./shell.css" />
+    <link rel="stylesheet" href="./demo.css" />
+    <script type="module" src="./demo.js"></script>
+  </head>
+  <body>
+    <div class="page">
+      <header class="mast">
+        <a class="brand" href="./">anchor-popover</a>
+        <nav>
+          <a href="./" aria-current="page">Playground</a>
+          <a href="./scenarios.html">Scenarios</a>
+        </nav>
+      </header>
+
+      <p class="lead">
+        Open the menu, then scroll the square toward every edge. Default boundary is
+        <code>#stage</code> — clear it to flip against the window.
+      </p>
+
+      <p id="support" class="support" hidden></p>
+
+      <div class="layout">
+        <section class="work">
+          <div class="stage" id="stage"></div>
+        </section>
+
+        <form id="controls" class="controls">
+          <label>
+            Placement
+            <select name="placement"></select>
+          </label>
+          <label>
+            <span class="lbl">Offset <output name="offsetOut">4px</output></span>
+            <input name="offset" type="range" min="0" max="48" value="4" />
+          </label>
+          <label>
+            <span class="lbl">Duration <output name="durationOut">200ms</output></span>
+            <input name="duration" type="range" min="0" max="1000" step="50" value="200" />
+          </label>
+          <label>
+            Boundary
+            <input name="boundary" type="text" value="#stage" placeholder="empty = viewport" spellcheck="false" />
+          </label>
+          <label>
+            Popover text
+            <textarea name="text" rows="3">Bare content. Style it however you want.</textarea>
+          </label>
+        </form>
+
+        <section class="code">
+          <div class="snippet-bar">
+            <span>Markup</span>
+            <button type="button" class="ghost" id="copy">Copy</button>
+          </div>
+          <pre class="snippet" id="snippet"></pre>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

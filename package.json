@@ -1,0 +1,29 @@
+{
+  "name": "anchor-popover",
+  "version": "1.0.0",
+  "description": "Headless web component for the Popover API + CSS Anchor Positioning.",
+  "type": "module",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "types": "./src/anchor-popover.d.ts",
+  "exports": {
+    ".": "./src/index.js",
+    "./element": "./src/anchor-popover.js",
+    "./style.css": "./src/anchor-popover.css"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "start": "python3 -m http.server 5173 --directory .",
+    "demo": "python3 -m http.server 5173 --directory .",
+    "test": "node --test src/placements.test.js"
+  },
+  "keywords": [
+    "popover",
+    "anchor-positioning",
+    "web-component",
+    "headless"
+  ],
+  "license": "MIT"
+}

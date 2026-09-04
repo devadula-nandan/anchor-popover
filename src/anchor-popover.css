@@ -1,0 +1,4 @@
+/* Link this in <head> before the module so undefined hosts stay hidden (no FOUC). */
+anchor-popover:not(:defined) {
+  display: none;
+}
