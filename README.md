@@ -1,6 +1,6 @@
 # anchor-popover
 
-Headless web component for **Popover API + CSS Anchor Positioning**. The host is `display: contents`.
+Headless web component for **Popover API + CSS Anchor Positioning**. The host is `display: contents`
 
 ## Markup
 
